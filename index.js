@@ -56,11 +56,23 @@ await page.type('create-profile >>> edit-profile >>> form#profile-form sl-input[
 await page.type('create-profile >>> edit-profile >>> form#profile-form sl-input[name="bio"] >>> input[name="bio"]', runRand)
 await page.click('create-profile >>> edit-profile >>> form#profile-form sl-button[type="submit"] >>> button[type="submit"]')
 
-await page.waitForTimeout(5000)
+await page.waitForSelector('file-storage-context div#content div.pane div.pane-content')
+await page.waitForSelector('div.nav div.nav-button[title="Sync"]')
 
 await page.screenshot({
   fullPage: true,
   path: 'page4.png'
+})
+
+console.log('click Sync')
+
+await page.click('div.nav div.nav-button[title="Sync"]')
+
+await page.waitForTimeout(100)
+
+await page.screenshot({
+  fullPage: true,
+  path: 'page5.png'
 })
 
 await browser.close()
