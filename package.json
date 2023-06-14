@@ -1,0 +1,11 @@
+{
+  "name": "emergence-stress",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node ./index.js"
+  },
+  "dependencies": {
+    "puppeteer": "^20.7.1"
+  }
+}
