@@ -7,6 +7,40 @@ function randStr() {
     Math.random().toString(36).substr(2)
 }
 
+// user screen registration key and submit button
+const S_USR_KEY = 'form input[name="key"]'
+const S_USR_SUB = 'form input[name="submit"]'
+
+// password entry fields
+const S_PW_1 = 'form input[name="password"]'
+const S_PW_2 = 'form input[name="password2"]'
+const S_PW_SUB = 'form input[name="submit"]'
+
+// profile entry fields
+const S_PROF_NICK = 'create-profile >>> edit-profile >>> form#profile-form sl-input[name="nickname"] >>> input[name="nickname"]'
+const S_PROF_LOC = 'create-profile >>> edit-profile >>> form#profile-form sl-input[name="location"] >>> input[name="location"]'
+const S_PROF_BIO = 'create-profile >>> edit-profile >>> form#profile-form sl-input[name="bio"] >>> input[name="bio"]'
+const S_PROF_SUB = 'create-profile >>> edit-profile >>> form#profile-form sl-button[type="submit"] >>> button[type="submit"]'
+
+// nav items
+const S_NAV_SNS = '#nav-sessions'
+const S_NAV_DSC = '#nav-discover'
+const S_NAV_ACT = 'sl-tab[panel="activity"]'
+const S_NAV_SN_CREATE = '#create-button'
+const S_NAV_BACK = 'div.session-details div.controls sl-button'
+
+// session related selectors
+const S_SN_TITLE = 'sl-dialog[label="Create Session"]:nth-of-type(1) #title-textfield > sl-input >>> input'
+const S_SN_DESC = 'sl-dialog[label="Create Session"]:nth-of-type(1) #description-textarea > sl-textarea >>> textarea'
+const S_SN_CREATE = 'sl-dialog[label="Create Session"]:nth-of-type(1) #create-session-button > sl-button >>> button'
+const S_SN_SEARCH = (name) => `div.session div.title ::-p-text(${name})`
+
+// session note related selectors
+const S_NOTE_DESC = 'div#note-textarea sl-textarea >>> textarea'
+const S_NOTE_UPLOAD = 'upload-files >>> button'
+const S_NOTE_CREATE = '#create-note-button sl-button >>> button'
+const S_NOTE_SEARCH = (desc) => `div.discover-section.feed div.post-content ::-p-text(${desc})`
+
 class EmergenceStress {
   #name = null
   #browser = null
@@ -35,8 +69,8 @@ class EmergenceStress {
     await page.setViewport({ width: 512, height: 1024 })
     await page.goto('https://dweb1.infra.holochain.org/')
 
-    await page.waitForSelector('form input[name="key"]')
-    await page.waitForSelector('form input[name="submit"]')
+    await page.waitForSelector(S_USR_KEY)
+    await page.waitForSelector(S_USR_SUB)
 
     const es = new EmergenceStress(name, browser, page)
 
@@ -58,61 +92,62 @@ class EmergenceStress {
 
   async wait(selector) {
     await this.#page.waitForSelector(selector, {
-      timeout: 300000,
+      timeout: 60000,
     })
+  }
+
+  async sleep(seconds) {
+    await this.#page.waitForTimeout(seconds * 1000)
   }
 
   async createAccount() {
     console.log(`login with user ${this.#name}`)
 
-    await this.#page.type('form input[name="key"]', this.#name)
+    await this.#page.type(S_USR_KEY, this.#name)
 
     await this.screenshot('enter-username.png')
 
-    await this.#page.click('form input[name="submit"]')
+    await this.#page.click(S_USR_SUB)
 
-    await this.wait('form input[name="password"]')
-    await this.wait('form input[name="password2"]')
-    await this.wait('form input[name="submit"]')
+    await this.wait(S_PW_1)
+    await this.wait(S_PW_2)
+    await this.wait(S_PW_SUB)
   }
 
   async setPassword() {
     console.log(`set password`)
 
-    await this.#page.type('form input[name="password"]', this.#name)
-    await this.#page.type('form input[name="password2"]', this.#name)
+    await this.#page.type(S_PW_1, this.#name)
+    await this.#page.type(S_PW_2, this.#name)
 
     await this.screenshot('enter-password.png')
 
-    await this.#page.click('form input[name="submit"]')
+    await this.#page.click(S_PW_SUB)
 
-    await this.wait('create-profile >>> edit-profile >>> form#profile-form')
-    await this.wait('create-profile >>> edit-profile >>> form#profile-form sl-input[name="nickname"] >>> input[name="nickname"]')
-    await this.wait('create-profile >>> edit-profile >>> form#profile-form sl-input[name="location"] >>> input[name="location"]')
-    await this.wait('create-profile >>> edit-profile >>> form#profile-form sl-input[name="bio"] >>> input[name="bio"]')
-    await this.wait('create-profile >>> edit-profile >>> form#profile-form sl-button[type="submit"] >>> button[type="submit"]')
+    await this.wait(S_PROF_NICK)
+    await this.wait(S_PROF_LOC)
+    await this.wait(S_PROF_BIO)
+    await this.wait(S_PROF_SUB)
   }
 
   async createProfile() {
     console.log(`create profile`)
 
-    await this.#page.type('create-profile >>> edit-profile >>> form#profile-form sl-input[name="nickname"] >>> input[name="nickname"]', this.#name)
-    await this.#page.type('create-profile >>> edit-profile >>> form#profile-form sl-input[name="location"] >>> input[name="location"]', this.#name)
-    await this.#page.type('create-profile >>> edit-profile >>> form#profile-form sl-input[name="bio"] >>> input[name="bio"]', this.#name)
+    await this.#page.type(S_PROF_NICK, this.#name)
+    await this.#page.type(S_PROF_LOC, this.#name)
+    await this.#page.type(S_PROF_BIO, this.#name)
 
     await this.screenshot('enter-profile.png')
 
-    await this.#page.click('create-profile >>> edit-profile >>> form#profile-form sl-button[type="submit"] >>> button[type="submit"]')
+    await this.#page.click(S_PROF_SUB)
 
-    await this.wait('file-storage-context div#content div.pane div.pane-content')
-    await this.wait('div.nav div.nav-button[title="Sync"]')
-    await this.wait('#create-button')
+    await this.wait(S_NAV_SNS)
   }
 
   async navToSessions() {
-    await this.wait('#nav-sessions')
-    await this.#page.click('#nav-sessions')
-    await this.wait('#create-button')
+    await this.wait(S_NAV_SNS)
+    await this.#page.click(S_NAV_SNS)
+    await this.wait(S_NAV_SN_CREATE)
   }
 
   async createSession(sessionName) {
@@ -121,35 +156,35 @@ class EmergenceStress {
 
     await this.navToSessions()
 
-    await this.#page.click('#create-button')
+    await this.#page.click(S_NAV_SN_CREATE)
 
-    await this.wait('sl-dialog[label="Create Session"]:nth-of-type(1) #title-textfield > sl-input >>> input')
-    await this.wait('sl-dialog[label="Create Session"]:nth-of-type(1) #description-textarea > sl-textarea >>> textarea')
-    await this.wait('sl-dialog[label="Create Session"]:nth-of-type(1) #create-session-button > sl-button >>> button')
+    await this.wait(S_SN_TITLE)
+    await this.wait(S_SN_DESC)
+    await this.wait(S_SN_CREATE)
 
-    await this.#page.type('sl-dialog[label="Create Session"]:nth-of-type(1) #title-textfield > sl-input >>> input', sessionName)
-    await this.#page.type('sl-dialog[label="Create Session"]:nth-of-type(1) #description-textarea > sl-textarea >>> textarea', sessionName)
+    await this.#page.type(S_SN_TITLE, sessionName)
+    await this.#page.type(S_SN_DESC, sessionName)
 
     await this.screenshot('create-session.png')
 
-    await this.#page.click('sl-dialog[label="Create Session"]:nth-of-type(1) #create-session-button > sl-button >>> button')
+    await this.#page.click(S_SN_CREATE)
 
     // give it time to submit the form
     await this.#page.waitForTimeout(5000)
 
     await this.#page.reload()
 
-    await this.wait(`div.session div.title ::-p-text(${sessionName})`)
+    await this.wait(S_SN_SEARCH(sessionName))
   }
 
   async navToActivity() {
     // click Discover
-    await this.wait('#nav-discover')
-    await this.#page.click('#nav-discover')
+    await this.wait(S_NAV_DSC)
+    await this.#page.click(S_NAV_DSC)
 
     // click Activity
-    await this.wait('sl-tab[panel="activity"]')
-    await this.#page.click('sl-tab[panel="activity"]')
+    await this.wait(S_NAV_ACT)
+    await this.#page.click(S_NAV_ACT)
   }
 
   async addNote(noteDesc) {
@@ -157,19 +192,19 @@ class EmergenceStress {
 
     await this.navToSessions()
 
-    await this.wait(`div.session div.title ::-p-text(${this.#curSessionName})`)
+    await this.wait(S_SN_SEARCH(this.#curSessionName))
 
-    await this.#page.click(`div.session div.title ::-p-text(${this.#curSessionName})`)
+    await this.#page.click(S_SN_SEARCH(this.#curSessionName))
 
-    await this.wait('div#note-textarea sl-textarea >>> textarea')
+    await this.wait(S_NOTE_DESC)
 
-    await this.#page.type('div#note-textarea sl-textarea >>> textarea', noteDesc)
+    await this.#page.type(S_NOTE_DESC, noteDesc)
 
     console.log('uploading image to note')
 
     const [fileChooser] = await Promise.all([
       this.#page.waitForFileChooser(),
-      this.#page.click('upload-files >>> button'),
+      this.#page.click(S_NOTE_UPLOAD),
     ])
     await fileChooser.accept(['./img/holo.png'])
 
@@ -180,7 +215,7 @@ class EmergenceStress {
 
     console.log('clicking create-note-button')
 
-    await this.#page.click('#create-note-button sl-button >>> button')
+    await this.#page.click(S_NOTE_CREATE)
 
     /// wait for the note to be added
     await this.#page.waitForTimeout(5000)
@@ -188,7 +223,7 @@ class EmergenceStress {
     // click the back button (sometimes we need to click it multiple times : (
     for (var i = 0; i < 3; ++i) {
       try {
-        await this.#page.click('div.session-details div.controls sl-button')
+        await this.#page.click(S_NAV_BACK)
       } catch (e) {
         /* pass */
       }
@@ -199,7 +234,7 @@ class EmergenceStress {
 
     await this.navToActivity()
 
-    await this.wait(`div.discover-section.feed div.post-content ::-p-text(${noteDesc})`)
+    await this.wait(S_NOTE_SEARCH(noteDesc))
 
     await this.screenshot(`view-note-${noteDesc}.png`)
   }
@@ -216,9 +251,20 @@ try {
 
   await es.createSession(randStr())
 
-  await es.addNote(randStr())
+  while (true) {
+    let sleep = (2 + (Math.random() * 18)) | 0
 
-  await es.close()
+    if (Math.random() > .75) {
+      // sometimes sleep for longer
+      sleep = (20 + (Math.random() * 100)) | 0
+    }
+
+    console.log(`sleeping for ${sleep} seconds`)
+
+    await es.sleep(sleep)
+
+    await es.addNote(randStr())
+  }
 } catch (e) {
   try {
     await es.screenshot('error.png')
