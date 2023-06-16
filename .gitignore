@@ -1,3 +1,4 @@
 node_modules
 *.png
 !img/holo.png
+/test-*

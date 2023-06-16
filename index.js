@@ -1,11 +1,8 @@
+import { mkdirSync } from 'fs'
 import puppeteer from 'puppeteer'
 
-function randStr() {
-  return 'test-' +
-    Math.random().toString(36).substr(2) +
-    '-' +
-    Math.random().toString(36).substr(2)
-}
+//const URL = 'https://dweb1.infra.holochain.org'
+const URL = 'https://neonphog1.infra.holochain.org'
 
 // user screen registration key and submit button
 const S_USR_KEY = 'form input[name="key"]'
@@ -41,6 +38,13 @@ const S_NOTE_UPLOAD = 'upload-files >>> button'
 const S_NOTE_CREATE = '#create-note-button sl-button >>> button'
 const S_NOTE_SEARCH = (desc) => `div.discover-section.feed div.post-content ::-p-text(${desc})`
 
+function randStr() {
+  return 'test-' +
+    Math.random().toString(36).substr(2) +
+    '-' +
+    Math.random().toString(36).substr(2)
+}
+
 class EmergenceStress {
   #name = null
   #browser = null
@@ -48,6 +52,12 @@ class EmergenceStress {
   #curSessionName = null
 
   constructor (name, browser, page) {
+    try {
+      mkdirSync(name)
+    } catch (e) {
+      /* pass */
+    }
+
     this.#name = name
     this.#browser = browser
     this.#page = page
@@ -67,7 +77,7 @@ class EmergenceStress {
 
     const page = await browser.newPage()
     await page.setViewport({ width: 512, height: 1024 })
-    await page.goto('https://dweb1.infra.holochain.org/')
+    await page.goto(URL)
 
     await page.waitForSelector(S_USR_KEY)
     await page.waitForSelector(S_USR_SUB)
@@ -86,7 +96,7 @@ class EmergenceStress {
   async screenshot(filename) {
     await this.#page.screenshot({
       fullPage: true,
-      path: filename
+      path: `./${this.#name}/${filename}`
     })
   }
 
