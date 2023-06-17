@@ -5,13 +5,13 @@ import puppeteer from 'puppeteer'
 const URL = 'https://neonphog1.infra.holochain.org'
 
 // user screen registration key and submit button
-const S_USR_KEY = 'form input[name="key"]'
-const S_USR_SUB = 'form input[name="submit"]'
+const S_USR_KEY = '#regkey'
+const S_USR_SUB = '#submit'
 
 // password entry fields
-const S_PW_1 = 'form input[name="password"]'
-const S_PW_2 = 'form input[name="password2"]'
-const S_PW_SUB = 'form input[name="submit"]'
+const S_PW_1 = '#pass1'
+const S_PW_2 = '#pass2'
+const S_PW_SUB = '#submit'
 
 // profile entry fields
 const S_PROF_NICK = 'create-profile >>> edit-profile >>> form#profile-form sl-input[name="nickname"] >>> input[name="nickname"]'
