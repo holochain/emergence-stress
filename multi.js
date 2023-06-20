@@ -21,7 +21,8 @@ for (let i = 0; i < count; ++i) {
 
     setTimeout(() => {
       const proc = spawn('npm', ['test'], {
-        stdio: 'inherit'
+        stdio: 'inherit',
+        env: Object.assign({}, process.env, { LAST_CHAR: i })
       })
       procs.push(proc)
       proc.on('close', () => {

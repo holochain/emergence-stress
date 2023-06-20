@@ -1,8 +1,7 @@
 import { mkdirSync } from 'fs'
 import puppeteer from 'puppeteer'
 
-//const URL = 'https://dweb1.infra.holochain.org'
-const URL = 'https://neonphog1.infra.holochain.org'
+const URL = process.env.URL || 'https://dweb1.infra.holochain.org'
 
 // user screen registration key and submit button
 const S_USR_KEY = '#regkey'
@@ -63,8 +62,8 @@ class EmergenceStress {
     this.#page = page
   }
 
-  static async withRandom () {
-    const name = randStr()
+  static async withRandom (lastChar) {
+    const name = randStr()+lastChar
     return await EmergenceStress.withName(name)
   }
 
@@ -72,7 +71,8 @@ class EmergenceStress {
     console.log(`loading fresh page`)
 
     const browser = await puppeteer.launch({
-      headless: 'new'
+      headless: 'new',
+      executablePath: 'chromium'
     })
 
     const page = await browser.newPage()
@@ -250,7 +250,7 @@ class EmergenceStress {
   }
 }
 
-const es = await EmergenceStress.withRandom()
+const es = await EmergenceStress.withRandom(process.env.LAST_CHAR || "")
 
 try {
   await es.createAccount()
