@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { spawn } from 'child_process'
 
-const count = parseInt(process.argv[2]) || 5
+const count = parseInt(process.argv[2]) || 6
 
 console.log(`running ${count} parallel tests`)
 
@@ -22,7 +22,7 @@ for (let i = 0; i < count; ++i) {
     setTimeout(() => {
       const proc = spawn('npm', ['test'], {
         stdio: 'inherit',
-        env: Object.assign({}, process.env, { LAST_CHAR: i })
+        env: Object.assign({}, process.env, { CONDUCTOR_NR: i })
       })
       procs.push(proc)
       proc.on('close', () => {

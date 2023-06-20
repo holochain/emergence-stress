@@ -250,7 +250,22 @@ class EmergenceStress {
   }
 }
 
-const es = await EmergenceStress.withRandom(process.env.LAST_CHAR || "")
+const CONDUCTOR_NR = process.env.CONDUCTOR_NR || "0"
+
+// adapted from: https://y-designs.com/ideas/stories/javascript-console-log-prefixes
+// adding a tag to all console logs!
+var originalConsoleLog = console.log;
+console.log = function() {
+    var args = [];
+    args.push( `[${CONDUCTOR_NR}]` );
+    // Note: arguments is part of the prototype
+    for( var i = 0; i < arguments.length; i++ ) {
+        args.push( arguments[i] );
+    }
+    originalConsoleLog.apply( console, args );
+};
+
+const es = await EmergenceStress.withRandom(CONDUCTOR_NR)
 
 try {
   await es.createAccount()
