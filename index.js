@@ -244,9 +244,9 @@ class EmergenceStress {
 
     await this.navToActivity()
 
-    await this.wait(S_NOTE_SEARCH(noteDesc))
+    // await this.wait(S_NOTE_SEARCH(noteDesc))
 
-    await this.screenshot(`view-note-${noteDesc}.png`)
+    // await this.screenshot(`view-note-${noteDesc}.png`)
   }
 }
 
