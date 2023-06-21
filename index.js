@@ -70,10 +70,14 @@ class EmergenceStress {
   static async withName (name) {
     console.log(`loading fresh page`)
 
-    const browser = await puppeteer.launch({
+    var puppeteerArgs = {
       headless: 'new',
-      executablePath: 'chromium'
-    })
+    };
+    const overridePuppeteerExecutable = process.env.PUPPETEER_EXECUTABLE;
+    if (overridePuppeteerExecutable) {
+      puppeteerArgs = {...puppeteerArgs, ...{ executablePath: overridePuppeteerExecutable} };
+    }
+    const browser = await puppeteer.launch(puppeteerArgs)
 
     const page = await browser.newPage()
     await page.setViewport({ width: 512, height: 1024 })
