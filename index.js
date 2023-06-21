@@ -1,8 +1,7 @@
 import { mkdirSync } from 'fs'
 import puppeteer from 'puppeteer'
 
-//const URL = 'https://dweb1.infra.holochain.org'
-const URL = 'https://neonphog1.infra.holochain.org'
+const URL = process.env.URL || 'https://dweb1.infra.holochain.org'
 
 // user screen registration key and submit button
 const S_USR_KEY = '#regkey'
@@ -63,17 +62,22 @@ class EmergenceStress {
     this.#page = page
   }
 
-  static async withRandom () {
-    const name = randStr()
+  static async withRandom (lastChar) {
+    const name = randStr()+lastChar
     return await EmergenceStress.withName(name)
   }
 
   static async withName (name) {
     console.log(`loading fresh page`)
 
-    const browser = await puppeteer.launch({
-      headless: 'new'
-    })
+    var puppeteerArgs = {
+      headless: 'new',
+    };
+    const overridePuppeteerExecutable = process.env.PUPPETEER_EXECUTABLE;
+    if (overridePuppeteerExecutable) {
+      puppeteerArgs = {...puppeteerArgs, ...{ executablePath: overridePuppeteerExecutable} };
+    }
+    const browser = await puppeteer.launch(puppeteerArgs)
 
     const page = await browser.newPage()
     await page.setViewport({ width: 512, height: 1024 })
@@ -244,13 +248,28 @@ class EmergenceStress {
 
     await this.navToActivity()
 
-    await this.wait(S_NOTE_SEARCH(noteDesc))
+    // await this.wait(S_NOTE_SEARCH(noteDesc))
 
-    await this.screenshot(`view-note-${noteDesc}.png`)
+    // await this.screenshot(`view-note-${noteDesc}.png`)
   }
 }
 
-const es = await EmergenceStress.withRandom()
+const CONDUCTOR_NR = process.env.CONDUCTOR_NR || "0"
+
+// adapted from: https://y-designs.com/ideas/stories/javascript-console-log-prefixes
+// adding a tag to all console logs!
+var originalConsoleLog = console.log;
+console.log = function() {
+    var args = [];
+    args.push( `[${CONDUCTOR_NR}]` );
+    // Note: arguments is part of the prototype
+    for( var i = 0; i < arguments.length; i++ ) {
+        args.push( arguments[i] );
+    }
+    originalConsoleLog.apply( console, args );
+};
+
+const es = await EmergenceStress.withRandom(CONDUCTOR_NR)
 
 try {
   await es.createAccount()
