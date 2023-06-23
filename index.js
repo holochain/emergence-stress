@@ -31,6 +31,7 @@ const S_SN_TITLE = 'sl-dialog[label="Create Session"]:nth-of-type(1) #title-text
 const S_SN_DESC = 'sl-dialog[label="Create Session"]:nth-of-type(1) #description-textarea > sl-textarea >>> textarea'
 const S_SN_CREATE = 'sl-dialog[label="Create Session"]:nth-of-type(1) #create-session-button > sl-button >>> button'
 const S_SN_SEARCH = (name) => `div.session div.title ::-p-text(${name})`
+const S_SN_ACT_SEARCH = (name) => `div.nickname ::-p-text(${name})`
 
 // session note related selectors
 const S_NOTE_DESC = 'div#note-textarea sl-textarea >>> textarea'
@@ -155,6 +156,8 @@ class EmergenceStress {
   }
 
   async navToSessions() {
+    console.log('moving to Sessions')
+
     await this.wait(S_NAV_SNS)
     await this.#page.click(S_NAV_SNS)
     await this.wait(S_NAV_SN_CREATE)
@@ -188,6 +191,8 @@ class EmergenceStress {
   }
 
   async navToActivity() {
+    console.log('moving to Discover->Activity')
+
     // click Discover
     await this.wait(S_NAV_DSC)
     await this.#page.click(S_NAV_DSC)
@@ -211,6 +216,8 @@ class EmergenceStress {
     await this.#page.type(S_NOTE_DESC, noteDesc)
 
     console.log('uploading image to note')
+
+    await this.#page.$eval('upload-files', uf => uf.style.display = 'block')
 
     const [fileChooser] = await Promise.all([
       this.#page.waitForFileChooser(),
@@ -240,17 +247,20 @@ class EmergenceStress {
       await this.#page.waitForTimeout(1000)
     }
 
-    console.log('moving to Discover->Activity')
-
     await this.navToActivity()
 
-    await this.wait(S_NOTE_SEARCH(noteDesc))
+    //await this.wait(S_NOTE_SEARCH(noteDesc))
+    await this.wait(S_SN_ACT_SEARCH(this.#name))
 
     await this.screenshot(`view-note-${noteDesc}.png`)
   }
 }
 
 const es = await EmergenceStress.withRandom()
+
+process.on('exit', () => {
+  es.close()
+})
 
 try {
   await es.createAccount()
@@ -274,6 +284,8 @@ try {
     await es.sleep(sleep)
 
     await es.addNote(randStr())
+
+    await es.navToSessions()
   }
 } catch (e) {
   try {
