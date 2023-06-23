@@ -16,7 +16,7 @@ process.on('exit', () => {
 function run() {
   const proc = spawn('node', ['./index.js'], {
     stdio: 'inherit',
-    env: Object.assign({}, process.env, { CONDUCTOR_NR: i })
+    env: Object.assign({}, process.env, { CONDUCTOR_NR: 0 })
   })
 
   proc.on('error', (err) => {
